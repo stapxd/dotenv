@@ -48,3 +48,6 @@ project "dotenvTest"
 
     filter "system:linux"
         systemversion "latest"
+        postbuildcommands {
+            "{COPY} %{prj.location}/.env %{cfg.targetdir}"
+        }
