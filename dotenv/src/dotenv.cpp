@@ -1,4 +1,5 @@
 #include "dotenv.h"
+#include "core.h"
 
 #include <fstream>
 
@@ -8,13 +9,26 @@ void dotenv::config(const std::string& path)
 {
     std::ifstream file(path);
     std::string line;
-    while (std::getline(file, line)) {
-        size_t pos = line.find('=');
-        if (pos != std::string::npos) {
-            std::string key = line.substr(0, pos);
-            std::string value = line.substr(pos + 1);
-            m_Env[key] = value;
+
+    if (file.is_open()) {
+        while (std::getline(file, line)) {
+            size_t commentPos = line.find('#');
+            size_t pos = line.find('=');
+            if (pos != std::string::npos) {
+                std::string key = line.substr(0, pos);
+                std::string value = "";
+                if (commentPos != std::string::npos) {
+                    size_t count = commentPos - pos;
+                    value = line.substr(pos + 1, count - 1);
+                }
+                else
+                    value = line.substr(pos + 1);
+                m_Env[key] = value;
+            }
         }
+    }
+    else {
+        DOTENV_ERROR("Could not open .env file");
     }
 }
 
